@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Capital Code - MBA Finance Crossword</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="startScreen">
+    <h1>THE CAPITAL CODE</h1>
+    <p>Enter Your Name</p>
+    <input type="text" id="playerName">
+    <button id="startBtn">START</button>
+</div>
+
+<header>
+    <div>MONEY WEEK 2026</div>
+    <div>Time Spent: <span id="timer">00:00</span></div>
+    <div>
+        <button id="submitBtn">Submit</button>
+        <button id="clearBtn">Clear</button>
+        <button id="undoBtn">Undo</button>
+    </div>
+</header>
+
+<div class="container">
+    <div id="grid"></div>
+
+    <div class="clues-wrapper">
+        <div class="clue-column">
+            <h3>ACROSS</h3>
+            <div id="acrossClues"></div>
+        </div>
+        <div class="clue-column">
+            <h3>DOWN</h3>
+            <div id="downClues"></div>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
