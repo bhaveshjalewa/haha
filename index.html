@@ -2,41 +2,64 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Capital Code - MBA Finance Crossword</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Capital Code</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<!-- INSTRUCTION SCREEN -->
 <div id="startScreen">
     <h1>THE CAPITAL CODE</h1>
-    <p>Enter Your Name</p>
-    <input type="text" id="playerName">
-    <button id="startBtn">START</button>
+
+    <div class="instructions">
+        <p><strong>Instructions:</strong></p>
+        <ul>
+            <li>Fill the crossword using finance concepts.</li>
+            <li>Across and Down clues are provided.</li>
+            <li>Timer starts when you click Start.</li>
+            <li>Timer stops only after complete correct submission.</li>
+            <li>Completion code appears after solving.</li>
+        </ul>
+    </div>
+
+    <button id="startBtn">START GAME</button>
 </div>
 
-<header>
-    <div>MONEY WEEK 2026</div>
-    <div>Time Spent: <span id="timer">00:00</span></div>
-    <div>
-        <button id="submitBtn">Submit</button>
-        <button id="clearBtn">Clear</button>
-        <button id="undoBtn">Undo</button>
-    </div>
-</header>
+<!-- GAME SECTION -->
+<div id="gameContainer">
 
-<div class="container">
-    <div id="grid"></div>
+    <header>
+        <div>MONEY WEEK 2026</div>
+        <div>Time Spent: <span id="timer">00:00</span></div>
+    </header>
 
-    <div class="clues-wrapper">
-        <div class="clue-column">
-            <h3>ACROSS</h3>
-            <div id="acrossClues"></div>
+    <div class="container">
+
+        <div class="game-area">
+            <div id="grid"></div>
+
+            <div class="controls">
+                <button id="submitBtn">Submit</button>
+                <button id="clearBtn">Clear</button>
+            </div>
+
+            <div id="message"></div>
         </div>
-        <div class="clue-column">
-            <h3>DOWN</h3>
-            <div id="downClues"></div>
+
+        <div class="clues-wrapper">
+            <div class="clue-column">
+                <h3>ACROSS</h3>
+                <div id="acrossClues"></div>
+            </div>
+            <div class="clue-column">
+                <h3>DOWN</h3>
+                <div id="downClues"></div>
+            </div>
         </div>
+
     </div>
+
 </div>
 
 <script src="script.js"></script>
