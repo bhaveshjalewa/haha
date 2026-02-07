@@ -1,16 +1,19 @@
 let startBtn = document.getElementById("startBtn");
 let gameContainer = document.getElementById("gameContainer");
 let startScreen = document.getElementById("startScreen");
-startBtn.onclick = function(){
-    startScreen.style.display = "none";
-    gameContainer.style.display = "block";
 
-    startTime = Date.now();
-    localStorage.setItem("crosswordStart", startTime);
+let grid = document.getElementById("grid");
+let acrossDiv = document.getElementById("acrossClues");
+let downDiv = document.getElementById("downClues");
+let timerDisplay = document.getElementById("timer");
+let submitBtn = document.getElementById("submitBtn");
+let clearBtn = document.getElementById("clearBtn");
+let messageDiv = document.getElementById("message");
 
-    setInterval(updateTimer,1000);
-};
+const FIXED_CODE =
+"CAPITALFINANCEMBA2026CROSSWORDWEEKCOMPLETEXX";
 
+/* PUZZLE */
 const puzzle = [
 "0LIFECYCLE000",
 "0N000000TBR0",
@@ -65,34 +68,33 @@ const downClues = [
 "Leveraged buyout abbreviation"
 ];
 
-const FIXED_CODE =
-"CAPITALFINANCEMBA2026CROSSWORDWEEKCOMPLETEXX";
+let startTime = null;
+let timerInterval = null;
 
-let grid = document.getElementById("grid");
-let acrossDiv = document.getElementById("acrossClues");
-let downDiv = document.getElementById("downClues");
-let timerDisplay = document.getElementById("timer");
-let submitBtn = document.getElementById("submitBtn");
-let clearBtn = document.getElementById("clearBtn");
-let messageDiv = document.getElementById("message");
+/* START BUTTON */
+startBtn.onclick = function(){
 
-let startTime = localStorage.getItem("crosswordStart");
+    startScreen.style.display = "none";
+    gameContainer.style.display = "block";
 
-if(!startTime){
     startTime = Date.now();
     localStorage.setItem("crosswordStart", startTime);
-}
 
+    timerInterval = setInterval(updateTimer,1000);
+};
+
+/* TIMER */
 function updateTimer(){
+    if(!startTime) return;
+
     let now = Date.now();
     let diff = Math.floor((now - startTime)/1000);
     let m = Math.floor(diff/60);
     let s = diff%60;
+
     timerDisplay.textContent =
         (m<10?"0"+m:m)+":"+(s<10?"0"+s:s);
 }
-
-setInterval(updateTimer,1000);
 
 /* BUILD GRID */
 function buildGrid(){
@@ -178,11 +180,15 @@ function checkAnswers(){
 /* SUBMIT */
 submitBtn.onclick=()=>{
     if(checkAnswers()){
+
+        clearInterval(timerInterval);
+
         messageDiv.style.color="green";
         messageDiv.innerHTML=
         "Solved Completely!<br><br>Completion Code:<br>"+FIXED_CODE;
 
         localStorage.removeItem("crosswordStart");
+
     }else{
         messageDiv.style.color="#c62828";
         messageDiv.textContent="Some answers are incorrect. Please review.";
@@ -195,4 +201,3 @@ clearBtn.onclick=()=>{
 };
 
 buildGrid();
-updateTimer();
