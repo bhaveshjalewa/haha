@@ -1,19 +1,5 @@
-let startBtn = document.getElementById("startBtn");
-let gameContainer = document.getElementById("gameContainer");
-let startScreen = document.getElementById("startScreen");
+document.addEventListener("DOMContentLoaded", function(){
 
-let grid = document.getElementById("grid");
-let acrossDiv = document.getElementById("acrossClues");
-let downDiv = document.getElementById("downClues");
-let timerDisplay = document.getElementById("timer");
-let submitBtn = document.getElementById("submitBtn");
-let clearBtn = document.getElementById("clearBtn");
-let messageDiv = document.getElementById("message");
-
-const FIXED_CODE =
-"CAPITALFINANCEMBA2026CROSSWORDWEEKCOMPLETEXX";
-
-/* PUZZLE */
 const puzzle = [
 "0LIFECYCLE000",
 "0N000000TBR0",
@@ -68,30 +54,39 @@ const downClues = [
 "Leveraged buyout abbreviation"
 ];
 
-let startTime = null;
+const FIXED_CODE =
+"CAPITALFINANCEMBA2026CROSSWORDWEEKCOMPLETEXX";
+
+let startBtn = document.getElementById("startBtn");
+let startScreen = document.getElementById("startScreen");
+let gameContainer = document.getElementById("gameContainer");
+
+let grid = document.getElementById("grid");
+let acrossDiv = document.getElementById("acrossClues");
+let downDiv = document.getElementById("downClues");
+let timerDisplay = document.getElementById("timer");
+let submitBtn = document.getElementById("submitBtn");
+let clearBtn = document.getElementById("clearBtn");
+let messageDiv = document.getElementById("message");
+
 let timerInterval = null;
+let startTime = null;
 
 /* START BUTTON */
-startBtn.onclick = function(){
-
+startBtn.addEventListener("click", function(){
     startScreen.style.display = "none";
     gameContainer.style.display = "block";
 
     startTime = Date.now();
-    localStorage.setItem("crosswordStart", startTime);
 
     timerInterval = setInterval(updateTimer,1000);
-};
+});
 
 /* TIMER */
 function updateTimer(){
-    if(!startTime) return;
-
-    let now = Date.now();
-    let diff = Math.floor((now - startTime)/1000);
+    let diff = Math.floor((Date.now() - startTime)/1000);
     let m = Math.floor(diff/60);
     let s = diff%60;
-
     timerDisplay.textContent =
         (m<10?"0"+m:m)+":"+(s<10?"0"+s:s);
 }
@@ -166,7 +161,7 @@ function renderClues(){
     });
 }
 
-/* VALIDATION */
+/* CHECK */
 function checkAnswers(){
     let correct=true;
     document.querySelectorAll(".cell").forEach(cell=>{
@@ -178,26 +173,23 @@ function checkAnswers(){
 }
 
 /* SUBMIT */
-submitBtn.onclick=()=>{
+submitBtn.addEventListener("click", function(){
     if(checkAnswers()){
-
         clearInterval(timerInterval);
-
         messageDiv.style.color="green";
         messageDiv.innerHTML=
         "Solved Completely!<br><br>Completion Code:<br>"+FIXED_CODE;
-
-        localStorage.removeItem("crosswordStart");
-
     }else{
         messageDiv.style.color="#c62828";
         messageDiv.textContent="Some answers are incorrect. Please review.";
     }
-};
+});
 
-clearBtn.onclick=()=>{
+clearBtn.addEventListener("click", function(){
     document.querySelectorAll(".cell").forEach(c=>c.value="");
     messageDiv.textContent="";
-};
+});
 
 buildGrid();
+
+});
