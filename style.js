@@ -1,3 +1,16 @@
+let startBtn = document.getElementById("startBtn");
+let gameContainer = document.getElementById("gameContainer");
+let startScreen = document.getElementById("startScreen");
+startBtn.onclick = function(){
+    startScreen.style.display = "none";
+    gameContainer.style.display = "block";
+
+    startTime = Date.now();
+    localStorage.setItem("crosswordStart", startTime);
+
+    setInterval(updateTimer,1000);
+};
+
 const puzzle = [
 "0LIFECYCLE000",
 "0N000000TBR0",
