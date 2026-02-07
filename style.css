@@ -16,6 +16,32 @@ header{
     display:flex;
     flex-wrap:wrap;
 }
+/* START SCREEN */
+#startScreen{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:#f4f6f9;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    z-index:9999;
+}
+
+.instructions{
+    max-width:500px;
+    margin:20px;
+    text-align:left;
+}
+
+/* GAME initially hidden */
+#gameContainer{
+    display:none;
+}
 
 /* GAME AREA */
 .game-area{
