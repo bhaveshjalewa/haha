@@ -53,10 +53,9 @@ header{
 /* ================== GRID ================== */
 #grid{
     display:grid;
-    gap:0;                  /* No gap – borders form grid */
-    background:#999;
-    padding:4px;
-    border-radius:6px;
+    gap:0;                         /* no spacing */
+    background:black;              /* outer grid color */
+    padding:1px;                   /* thin outer border */
 }
 
 /* Each grid square */
@@ -69,14 +68,14 @@ header{
 /* Grey unused cells */
 .disabled-cell{
     background:#d9d9d9;
-    border:1px solid white;
+    border:1px solid black;        /* thin black border */
 }
 
 /* Playable cells */
 .cell{
     width:100%;
     height:100%;
-    border:1px solid white;      /* WHITE BORDER ADDED */
+    border:1px solid black;        /* thin black border */
     text-align:center;
     font-size:16px;
     text-transform:uppercase;
@@ -89,7 +88,7 @@ header{
     background:#e6f2ff;
 }
 
-/* Small clue numbers */
+/* Small numbering */
 .cell-number{
     position:absolute;
     top:2px;
