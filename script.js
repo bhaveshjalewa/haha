@@ -1,195 +1,247 @@
-document.addEventListener("DOMContentLoaded", function(){
+/* ================= CONFIG ================= */
 
-const puzzle = [
-"0LIFECYCLE000",
-"0N000000TBR0",
-"0T000000CAPM",
-"0C000NPVRULE",
-"0OVERDEBRATIO",
-"000000POISON0",
-"000000SHARPE0",
-"000000STDDEV0",
-"000000UNSYSRISK",
-"000000EMH0000",
-"000000ABS0000",
-"000000QUICK00",
-"000000CALL000",
-"000000NPV0000",
-"000000BETA000"
+const ROWS = 12;
+const COLS = 10;
+
+let timer = 0;
+let interval;
+let activeInput = null;
+let locked = false;
+let undoStack = [];
+
+/* ================= ENCODED SOLUTION ================= */
+/* Original solution encoded to hide direct visibility */
+
+const encodedSolution =
+"WzAsMCwwLDAsMCwwLDAsMCwwLDBdLFswLDAsNywxLDAsMSwzLDcsMCwwXSxbMCwwLDYsNSwyLDMsNyw5LDEsMF0sWzAsMyw4LDIsMSwwLDAsOCw5LDRdLFswLDgsOSw2LDMsMSwwLDQsMiwxXSxbMCwwLDAsOSw0LDIsMSwwLDYsMl0sWzAsMyw2LDAsNSw2LDIsMCw4LDNdLFswLDQsOSwwLDYsOCwzLDEsMCwwXSxbMCwyLDQsOSwwLDksNCw4LDYsMV0sWzAsMSwyLDgsMCwwLDcsOSw4LDVdLFswLDAsMSwyLDQsMyw1LDcsOSwwXSxbMCwwLDAsMyw5LDgsMCw1LDEsMF0=";
+
+const solution = JSON.parse("[" + atob(encodedSolution) + "]");
+
+/* ================= LAYOUT ================= */
+
+const layoutText = [
+"BBCCBCCCBB",
+"BCWWCWWWCB",
+"BCWWWWWWWC",
+"CWWWWCCWWW",
+"CWWWWWCWWW",
+"BCCWWWWCWW",
+"CWWCWWWCWW",
+"CWWCWWWWCC",
+"CWWWCWWWWW",
+"CWWWCCWWWW",
+"BCWWWWWWWB",
+"BBCWWWCWWB"
 ];
 
-const acrossClues = [
-"Consumption smoothing across working and retirement years",
-"Government security benchmark rate",
-"Covariance-based asset pricing model",
-"Capital budgeting rule aligned with wealth maximization",
-"Leverage ratio total debt divided by equity",
-"Hostile takeover defense using dilution",
-"Risk-adjusted return per total volatility",
-"Square root of variance",
-"Risk remaining after diversification",
-"Markets reflect all available information",
-"Securitized pooled receivables",
-"Liquidity ratio excluding inventory",
-"Right but not obligation to buy",
-"Project acceptance rule based on value",
-"Regression slope measuring systematic risk"
-];
+/* ================= START ================= */
 
-const downClues = [
-"Interest coverage measure",
-"Basel capital adequacy ratio",
-"Non-diversifiable risk",
-"Duration matching strategy",
-"Equity risk premium component",
-"Four percent retirement rule",
-"Dividend certainty preference theory",
-"Efficient portfolio boundary",
-"Bond sensitivity measure",
-"Market fear index",
-"Risk shifting agency issue",
-"Bond yield held to maturity",
-"Weighted average cost of capital",
-"Expected shortfall measure",
-"Leveraged buyout abbreviation"
-];
-
-const FIXED_CODE =
-"CAPITALFINANCEMBA2026CROSSWORDWEEKCOMPLETEXX";
-
-let startBtn = document.getElementById("startBtn");
-let startScreen = document.getElementById("startScreen");
-let gameContainer = document.getElementById("gameContainer");
-
-let grid = document.getElementById("grid");
-let acrossDiv = document.getElementById("acrossClues");
-let downDiv = document.getElementById("downClues");
-let timerDisplay = document.getElementById("timer");
-let submitBtn = document.getElementById("submitBtn");
-let clearBtn = document.getElementById("clearBtn");
-let messageDiv = document.getElementById("message");
-
-let timerInterval = null;
-let startTime = null;
-
-/* START BUTTON */
-startBtn.addEventListener("click", function(){
-    startScreen.style.display = "none";
-    gameContainer.style.display = "block";
-
-    startTime = Date.now();
-
-    timerInterval = setInterval(updateTimer,1000);
-});
-
-/* TIMER */
-function updateTimer(){
-    let diff = Math.floor((Date.now() - startTime)/1000);
-    let m = Math.floor(diff/60);
-    let s = diff%60;
-    timerDisplay.textContent =
-        (m<10?"0"+m:m)+":"+(s<10?"0"+s:s);
+function startGame(){
+  document.getElementById("startScreen").style.display="none";
+  document.getElementById("gameArea").style.display="block";
+  buildBoard();
+  generateClues();
+  startTimer();
 }
 
-/* BUILD GRID */
-function buildGrid(){
-    const rows = puzzle.length;
-    const cols = Math.max(...puzzle.map(r=>r.length));
-    grid.style.gridTemplateColumns = `repeat(${cols},38px)`;
+/* ================= TIMER ================= */
 
-    let number = 1;
+function startTimer(){
+  interval = setInterval(()=>{
+    timer++;
+    let m = Math.floor(timer/60).toString().padStart(2,'0');
+    let s = (timer%60).toString().padStart(2,'0');
+    document.getElementById("timer").innerText=`Time: ${m}:${s}`;
+  },1000);
+}
 
-    for(let r=0;r<rows;r++){
-        for(let c=0;c<cols;c++){
+/* ================= BUILD BOARD ================= */
 
-            const char = puzzle[r][c] || "0";
-            const wrapper = document.createElement("div");
+function buildBoard(){
+  const board = document.getElementById("board");
+  board.innerHTML="";
+  const table = document.createElement("table");
 
-            if(char === "0"){
-                wrapper.className="disabled-cell";
-            }else{
+  for(let r=0;r<ROWS;r++){
+    const tr=document.createElement("tr");
 
-                const input = document.createElement("input");
-                input.className="cell";
-                input.maxLength=1;
-                input.dataset.row=r;
-                input.dataset.col=c;
+    for(let c=0;c<COLS;c++){
+      const td=document.createElement("td");
+      const type = layoutText[r][c];
 
-                input.addEventListener("input",(e)=>{
-                    e.target.value=e.target.value.toUpperCase();
-                });
+      if(type==="W"){
+        td.className="white";
+        const input=document.createElement("input");
+        input.maxLength=1;
 
-                const startsAcross =
-                    (c===0 || puzzle[r][c-1]==="0") &&
-                    (puzzle[r][c+1] && puzzle[r][c+1]!=="0");
+        input.addEventListener("focus",()=>activeInput=input);
 
-                const startsDown =
-                    (r===0 || puzzle[r-1][c]==="0") &&
-                    (puzzle[r+1] && puzzle[r+1][c]!=="0");
+        input.addEventListener("input",function(){
+          this.value=this.value.replace(/[^1-9]/g,"");
+          undoStack.push(this);
+        });
 
-                if(startsAcross || startsDown){
-                    const num=document.createElement("span");
-                    num.className="cell-number";
-                    num.textContent=number++;
-                    wrapper.appendChild(num);
-                }
+        td.appendChild(input);
+      }
+      else if(type==="C"){
+        td.className="clue";
+        td.innerHTML='<span class="across"></span><span class="down"></span>';
+      }
+      else{
+        td.className="black";
+      }
 
-                wrapper.appendChild(input);
-            }
+      tr.appendChild(td);
+    }
 
-            grid.appendChild(wrapper);
+    table.appendChild(tr);
+  }
+
+  board.appendChild(table);
+}
+
+/* ================= GENERATE CLUES ================= */
+
+function generateClues(){
+  const table=document.querySelector("#board table");
+
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+
+      if(layoutText[r][c]==="C"){
+
+        // ACROSS
+        if(c+1<COLS && layoutText[r][c+1]==="W"){
+          let sum=0;
+          let cc=c+1;
+          while(cc<COLS && layoutText[r][cc]==="W"){
+            sum+=solution[r][cc];
+            cc++;
+          }
+          table.rows[r].cells[c].querySelector(".across").innerText=sum;
         }
+
+        // DOWN
+        if(r+1<ROWS && layoutText[r+1][c]==="W"){
+          let sum=0;
+          let rr=r+1;
+          while(rr<ROWS && layoutText[rr][c]==="W"){
+            sum+=solution[rr][c];
+            rr++;
+          }
+          table.rows[r].cells[c].querySelector(".down").innerText=sum;
+        }
+
+      }
     }
-
-    renderClues();
+  }
 }
 
-/* CLUES */
-function renderClues(){
-    acrossClues.forEach((clue,i)=>{
-        const div=document.createElement("div");
-        div.className="clue";
-        div.textContent=(i+1)+". "+clue;
-        acrossDiv.appendChild(div);
-    });
+/* ================= SUBMIT ================= */
 
-    downClues.forEach((clue,i)=>{
-        const div=document.createElement("div");
-        div.className="clue";
-        div.textContent=(i+1)+". "+clue;
-        downDiv.appendChild(div);
-    });
-}
+function submitPuzzle(){
+  if(locked) return;
 
-/* CHECK */
-function checkAnswers(){
-    let correct=true;
-    document.querySelectorAll(".cell").forEach(cell=>{
-        let r=cell.dataset.row;
-        let c=cell.dataset.col;
-        if(cell.value!==puzzle[r][c]) correct=false;
-    });
-    return correct;
-}
+  const table=document.querySelector("#board table");
 
-/* SUBMIT */
-submitBtn.addEventListener("click", function(){
-    if(checkAnswers()){
-        clearInterval(timerInterval);
-        messageDiv.style.color="green";
-        messageDiv.innerHTML=
-        "Solved Completely!<br><br>Completion Code:<br>"+FIXED_CODE;
-    }else{
-        messageDiv.style.color="#c62828";
-        messageDiv.textContent="Some answers are incorrect. Please review.";
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+
+      if(layoutText[r][c]==="W"){
+        const input=table.rows[r].cells[c].querySelector("input");
+        const val=parseInt(input.value);
+
+        if(val!==solution[r][c]){
+          document.getElementById("resultMessage").innerText="Incorrect.";
+          return;
+        }
+      }
     }
-});
+  }
 
-clearBtn.addEventListener("click", function(){
-    document.querySelectorAll(".cell").forEach(c=>c.value="");
-    messageDiv.textContent="";
-});
+  clearInterval(interval);
+  locked=true;
+  document.getElementById("resultMessage").innerText=
+    "Correct! Code: "+generateCode();
+}
 
-buildGrid();
+/* ================= 52 CHAR CODE ================= */
 
-});
+function generateCode(){
+  const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+  let code="";
+  for(let i=0;i<52;i++){
+    code+=chars[Math.floor(Math.random()*chars.length)];
+  }
+  return code;
+}
+
+/* ================= UNDO ================= */
+
+function undoMove(){
+  const last=undoStack.pop();
+  if(last) last.value="";
+}
+
+/* ================= CLEAR ================= */
+
+function clearBoard(){
+  document.querySelectorAll(".white input").forEach(i=>i.value="");
+}
+
+/* ================= NUMBER PAD ================= */
+
+function insertNumber(num){
+  if(activeInput && !locked){
+    activeInput.value=num;
+  }
+}
+
+function clearCell(){
+  if(activeInput && !locked){
+    activeInput.value="";
+  }
+}
+
+/* ================= DRAG NUMBER PAD ================= */
+
+const pad=document.getElementById("numberPad");
+const header=document.getElementById("padHeader");
+
+if(header){
+  let offsetX, offsetY, dragging=false;
+
+  header.addEventListener("mousedown",(e)=>{
+    dragging=true;
+    offsetX=e.clientX-pad.offsetLeft;
+    offsetY=e.clientY-pad.offsetTop;
+  });
+
+  document.addEventListener("mousemove",(e)=>{
+    if(dragging){
+      pad.style.left=(e.clientX-offsetX)+"px";
+      pad.style.top=(e.clientY-offsetY)+"px";
+      pad.style.bottom="auto";
+      pad.style.right="auto";
+    }
+  });
+
+  document.addEventListener("mouseup",()=>dragging=false);
+}
+
+/* ================= MINIMIZE PAD ================= */
+
+const toggleBtn=document.getElementById("toggleBtn");
+const padBody=document.getElementById("padBody");
+
+if(toggleBtn){
+  toggleBtn.addEventListener("click",()=>{
+    if(padBody.style.display==="none"){
+      padBody.style.display="block";
+      toggleBtn.textContent="–";
+    } else {
+      padBody.style.display="none";
+      toggleBtn.textContent="+";
+    }
+  });
+            }
