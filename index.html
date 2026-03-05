@@ -2,62 +2,128 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Capital Code Crossword</title>
+<title>Arithmos</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- START SCREEN -->
+<header>
+  <h1>Arithmos</h1>
+</header>
+
+<!-- ================= START SCREEN ================= -->
+
 <div id="startScreen">
-    <h1>CROSSWORD</h1>
 
-    <div class="instructions">
-        <p><strong>Instructions:</strong></p>
+    <button onclick="startGame()">Start</button>
+
+    <div id="instructions">
+
+        <h3>How To Play</h3>
         <ul>
-            <li>Fill the crossword using finance concepts.</li>
-            <li>Across and Down clues are provided.</li>
-            <li>Timer starts when you click Start.</li>
-            <li>Timer stops only after correct submission.</li>
+          <li>Each clue cell contains two numbers.</li>
+          <li>Top-right number → Horizontal (Across) sum.</li>
+          <li>Bottom-left number → Vertical (Down) sum.</li>
+          <li>Numbers 1–9 only.</li>
+          <li>No duplicate number allowed in any run.</li>
+          <li>All white cells must be filled.</li>
         </ul>
+
+        <h3>Controls</h3>
+        <ul>
+          <li>Click a cell to select it.</li>
+          <li>Use number pad or keyboard (1–9).</li>
+          <li>Undo button reverses last move.</li>
+          <li>Clear button resets board.</li>
+        </ul>
+
+        <h3>Competition Rules</h3>
+        <ul>
+          <li>Unlimited wrong attempts allowed.</li>
+          <li>Timer starts when game begins.</li>
+          <li>After correct submission, board locks.</li>
+          <li>52-character secure code generated.</li>
+        </ul>
+
+        <!-- Example -->
+        <h3>Example (Solved Kakuro)</h3>
+
+        <div class="example-wrapper">
+          <table class="example-grid">
+
+            <tr>
+              <td class="black-cell"></td>
+              <td class="clue-example">
+                <span class="down">15</span>
+              </td>
+              <td class="clue-example">
+                <span class="down">13</span>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="clue-example">
+                <span class="down">9</span>
+                <span class="right">15</span>
+              </td>
+              <td class="white-example">8</td>
+              <td class="white-example">7</td>
+            </tr>
+
+            <tr>
+              <td class="white-example">9</td>
+              <td class="white-example">7</td>
+              <td class="white-example">6</td>
+            </tr>
+
+          </table>
+        </div>
+
     </div>
 
-    <button id="startBtn">START GAME</button>
 </div>
+<!-- ================= END START SCREEN ================= -->
 
-<!-- GAME -->
-<div id="gameContainer">
 
-    <header>
-        <div>MONEY WEEK 2026</div>
-        <div>Time: <span id="timer">00:00</span></div>
-    </header>
+<!-- ================= GAME AREA ================= -->
 
-    <div class="container">
+<div id="gameArea" style="display:none;">
 
-        <div class="game-area">
-            <div id="grid"></div>
+  <div id="timer">Time: 00:00</div>
 
-            <div class="controls">
-                <button id="submitBtn">Submit</button>
-                <button id="clearBtn">Clear</button>
-            </div>
+  <div id="board"></div>
 
-            <div id="message"></div>
-        </div>
+  <div class="controls">
+    <button onclick="submitPuzzle()">Submit</button>
+    <button onclick="undoMove()">Undo</button>
+    <button onclick="clearBoard()">Clear</button>
+  </div>
 
-        <div class="clues-wrapper">
-            <div class="clue-column">
-                <h3>ACROSS</h3>
-                <div id="acrossClues"></div>
-            </div>
-            <div class="clue-column">
-                <h3>DOWN</h3>
-                <div id="downClues"></div>
-            </div>
-        </div>
+  <p id="resultMessage"></p>
 
+  <!-- NUMBER PAD -->
+  <div id="numberPad">
+    <div class="pad-header" id="padHeader">
+      <span>Number Pad</span>
+      <button id="toggleBtn">–</button>
     </div>
+
+    <div class="pad-body" id="padBody">
+      <div class="pad-grid">
+        <button onclick="insertNumber(1)">1</button>
+        <button onclick="insertNumber(2)">2</button>
+        <button onclick="insertNumber(3)">3</button>
+        <button onclick="insertNumber(4)">4</button>
+        <button onclick="insertNumber(5)">5</button>
+        <button onclick="insertNumber(6)">6</button>
+        <button onclick="insertNumber(7)">7</button>
+        <button onclick="insertNumber(8)">8</button>
+        <button onclick="insertNumber(9)">9</button>
+      </div>
+      <button onclick="clearCell()">Clear Cell</button>
+    </div>
+  </div>
+
 </div>
 
 <script src="script.js"></script>
