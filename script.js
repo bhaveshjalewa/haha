@@ -165,15 +165,11 @@ function submitPuzzle(){
     "Correct! Code: "+generateCode();
 }
 
-/* ================= 52 CHAR CODE ================= */
+/* ================= FIXED CODE ================= */
 
 function generateCode(){
-  const chars=
-"Z9@vL#3xT!7qR$2mP^8yW*4kB%1dF&6nH?0cJ+5sU=E!aX";
-  return code;
+  return "Z9@vL#3xT!7qR$2mP^8yW*4kB%1dF&6nH?0cJ+5sU=E!aX";
 }
-  document.getElementById("resultMessage").innerText=
-    "Correct! Code: "+generateCode();
 
 /* ================= UNDO ================= */
 
@@ -243,4 +239,4 @@ if(toggleBtn){
       toggleBtn.textContent="+";
     }
   });
-            }
+}
