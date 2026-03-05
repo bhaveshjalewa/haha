@@ -168,10 +168,8 @@ function submitPuzzle(){
 /* ================= 52 CHAR CODE ================= */
 
 function generateCode(){
-  const chars="Z9@vL#3xT!7qR$2mP^8yW*4kB%1dF&6nH?0cJ+5sU=E!aX";
-  let code="";
-  for(let i=0;i<52;i++);
-  }
+  const chars=
+"Z9@vL#3xT!7qR$2mP^8yW*4kB%1dF&6nH?0cJ+5sU=E!aX";
   return code;
 }
 
