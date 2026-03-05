@@ -168,7 +168,12 @@ function submitPuzzle(){
 /* ================= FIXED CODE ================= */
 
 function generateCode(){
-  return "Z9@vL#3xT!7qR$2mP^8yW*4kB%1dF&6nH?0cJ+5sU=E!aX";
+
+  const encryptedCode =
+  "WjlAdkwjM3hUITdxUiQybVBeOHlXKjRrQiAlMWRGJjZuSD8wY0orNXNVPUUhYVg=";
+
+  return atob(encryptedCode);
+
 }
 
 /* ================= UNDO ================= */
