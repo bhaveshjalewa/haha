@@ -1,303 +1,117 @@
-/* ================= GLOBAL ================= */
-
 body{
-  margin:0;
-  font-family:Segoe UI, sans-serif;
-  background:#f5efe6;
-  color:#1f2937;
-  text-align:center;
+    font-family:Segoe UI, sans-serif;
+    background:#f4f6f9;
+    margin:0;
+    text-align:center;
 }
 
-header{
-  background:#e6dccf;
-  padding:18px;
-  font-size:28px;
-  font-weight:bold;
-  color:#111827;
-  border-bottom:3px solid #b8aa96;
+h1{
+    margin-top:30px;
 }
 
 /* ================= START SCREEN ================= */
 
 #startScreen{
-  width:850px;
-  margin:40px auto;
-  background:#ffffff;
-  color:#111827;
-  padding:30px;
-  border-radius:14px;
-  text-align:left;
-  box-shadow:0 6px 20px rgba(0,0,0,0.12);
-}
-
-#nameSection{
-  text-align:center;
-  margin-bottom:25px;
-}
-
-#nameSection input{
-  padding:8px 12px;
-  font-size:16px;
-  border-radius:6px;
-  border:1px solid #ccc;
-  width:220px;
-}
-
-#nameSection button{
-  padding:8px 16px;
-  font-weight:bold;
-  background:#b45309;
-  color:white;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-}
-
-#nameSection button:hover{
-  background:#92400e;
-}
-
-#instructions h3{
-  margin-top:20px;
-}
-
-/* ================= EXAMPLE BOARD ================= */
-
-.example-wrapper{
-  margin-top:25px;
-  display:flex;
-  justify-content:center;
-}
-
-.example-grid{
-  border-collapse:collapse;
-  background:white;
-}
-
-.example-grid td{
-  width:42px;
-  height:42px;
-  border:2px solid #000;
-  position:relative;
-  box-sizing:border-box;
-  text-align:center;
-  font-weight:bold;
-}
-
-/* White cell */
-.white-example{
-  background:white;
-  font-size:18px;
-  text-align:center;
-  line-height:42px;   /* match cell height */
-}
-
-/* Grey clue/black cell */
-.black-cell,
-.clue-example{
-  background:#d6d3d1;
-  position:relative;
-}
-
-/* Center diagonal */
-.black-cell::after,
-.clue-example::after{
-  content:"";
-  position:absolute;
-  width:140%;
-  height:2px;
-  background:black;
-  top:50%;
-  left:-20%;
-  transform:rotate(45deg);
-  transform-origin:center;
-}
-
-/* Clue numbers */
-.clue-example span{
-  position:absolute;
-  font-size:12px;
-  font-weight:800;
-  color:black;
-}
-
-/* Across → top right */
-.clue-example .right{
-  top:4px;
-  right:6px;
-}
-
-/* Down → bottom left */
-.clue-example .down{
-  bottom:4px;
-  left:6px;
-}
-
-/* ================= GAME BOARD ================= */
-
-#board table{
-  border-collapse:collapse;
-  margin:20px auto;
-  background:white;
-}
-
-#board td{
-  width:42px;
-  height:42px;
-  border:2px solid #000;
-  position:relative;
-  box-sizing:border-box;
-}
-
-/* White game cell */
-.white{
-  background:white;
-}
-
-.white input{
-  width:100%;
-  height:100%;
-  border:none;
-  text-align:center;
-  font-size:18px;
-  font-weight:bold;
-  outline:none;
-  background:transparent;
-}
-
-/* Grey clue & black game cell */
-.black,
-.clue{
-  background:#d6d3d1;
-  position:relative;
-}
-
-/* Center diagonal */
-.black::after,
-.clue::after{
-  content:"";
-  position:absolute;
-  width:140%;
-  height:2px;
-  background:black;
-  top:50%;
-  left:-20%;
-  transform:rotate(45deg);
-  transform-origin:center;
-}
-
-/* Clue numbers */
-.clue span{
-  position:absolute;
-  font-size:12px;
-  font-weight:800;
-  color:black;
-}
-
-.across{
-  top:4px;
-  right:6px;
-}
-
-.down{
-  bottom:4px;
-  left:6px;
+    width:850px;
+    margin:40px auto;
+    padding:35px;
+    background:white;
+    border-radius:16px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+    text-align:left;
 }
 
 /* ================= TIMER ================= */
 
 #timer{
-  color:#b45309;
-  font-weight:bold;
-  margin:15px;
-  font-size:18px;
+    color:red;
+    font-weight:bold;
+    margin:15px;
+    font-size:18px;
 }
 
-/* ================= BUTTONS ================= */
+/* ================= GAME BOARD ================= */
 
-.controls button{
-  margin:10px;
-  padding:8px 18px;
-  font-weight:bold;
-  background:#b45309;
-  color:white;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
+table{
+    border-collapse:collapse;
+    margin:20px auto;
 }
 
-.controls button:hover{
-  background:#92400e;
+td{
+    width:30px;
+    height:30px;
+    border:1px solid #bbb;
+    text-align:center;
+    vertical-align:middle;
 }
 
-/* ================= NUMBER PAD ================= */
-
-#numberPad{
-  position:fixed;
-  bottom:20px;
-  right:20px;
-  width:220px;
-  background:white;
-  color:black;
-  border-radius:12px;
-  box-shadow:0 10px 25px rgba(0,0,0,0.3);
-  resize:both;
-  overflow:auto;
+.cell{
+    background:white;
+    cursor:pointer;
 }
 
-.pad-header{
-  background:#b45309;
-  color:white;
-  padding:8px 12px;
-  font-weight:600;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  cursor:move;
-  user-select:none;
-  border-top-left-radius:12px;
-  border-top-right-radius:12px;
+.fill{
+    background:black;
 }
 
-.pad-header button{
-  background:#92400e;
-  border:none;
-  color:white;
-  padding:2px 8px;
-  border-radius:4px;
-  cursor:pointer;
+.cell.xmark::after{
+    content:"×";
+    font-size:20px;
+    color:#888;
+    font-weight:bold;
 }
 
-.pad-body{
-  padding:12px;
+.clue{
+    background:#f0f0f0;
+    font-weight:bold;
 }
 
-.pad-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:8px;
+.blank{
+    border:none;
+    background:#f4f6f9;
 }
 
-.pad-grid button{
-  padding:10px;
-  font-size:16px;
-  font-weight:bold;
-  border-radius:6px;
-  border:1px solid #ccc;
-  background:#f3f4f6;
-  cursor:pointer;
+/* ================= BUTTON ================= */
+
+button{
+    padding:8px 18px;
+    font-size:15px;
+    margin:5px;
 }
 
-.pad-grid button:hover{
-  background:#e5e7eb;
+/* ================= RESULT ================= */
+
+#resultMessage{
+    font-weight:bold;
+    font-size:18px;
+    margin-top:10px;
 }
 
-.pad-body > button{
-  margin-top:10px;
-  width:100%;
-  padding:8px;
-  border-radius:6px;
-  border:1px solid #ccc;
-  background:#f3f4f6;
-  cursor:pointer;
+/* ================= EXAMPLE NONOGRAM ================= */
+
+.example-grid{
+    border-collapse:collapse;
+    margin:15px auto;
+}
+
+.example-grid td{
+    width:28px;
+    height:28px;
+    border:1px solid #999;
+    text-align:center;
+    background:white;
+}
+
+.example-fill{
+    background:black !important;
+}
+
+.example-clue{
+    background:#eaeaea !important;
+    font-weight:bold;
+    font-size:13px;
+}
+
+.no-border{
+    border:none !important;
 }
