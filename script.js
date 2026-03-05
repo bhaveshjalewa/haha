@@ -172,6 +172,8 @@ function generateCode(){
 "Z9@vL#3xT!7qR$2mP^8yW*4kB%1dF&6nH?0cJ+5sU=E!aX";
   return code;
 }
+  document.getElementById("resultMessage").innerText=
+    "Correct! Code: "+generateCode();
 
 /* ================= UNDO ================= */
 
