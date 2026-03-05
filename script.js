@@ -1,247 +1,311 @@
-/* ================= CONFIG ================= */
-
-const ROWS = 12;
-const COLS = 10;
-
-let timer = 0;
+const size=15;
+let timer=0;
 let interval;
-let activeInput = null;
-let locked = false;
-let undoStack = [];
+let undoStack=[];
+let locked=false;
+const lockKey="nonogramSolved";
 
-/* ================= ENCODED SOLUTION ================= */
-/* Original solution encoded to hide direct visibility */
+/* ===== OBFUSCATION FUNCTIONS ===== */
 
-const encodedSolution =
-"WzAsMCwwLDAsMCwwLDAsMCwwLDBdLFswLDAsNywxLDAsMSwzLDcsMCwwXSxbMCwwLDYsNSwyLDMsNyw5LDEsMF0sWzAsMyw4LDIsMSwwLDAsOCw5LDRdLFswLDgsOSw2LDMsMSwwLDQsMiwxXSxbMCwwLDAsOSw0LDIsMSwwLDYsMl0sWzAsMyw2LDAsNSw2LDIsMCw4LDNdLFswLDQsOSwwLDYsOCwzLDEsMCwwXSxbMCwyLDQsOSwwLDksNCw4LDYsMV0sWzAsMSwyLDgsMCwwLDcsOSw4LDVdLFswLDAsMSwyLDQsMyw1LDcsOSwwXSxbMCwwLDAsMyw5LDgsMCw1LDEsMF0=";
+function d(a){
+    return atob(a);
+}
 
-const solution = JSON.parse("[" + atob(encodedSolution) + "]");
+function x(s,k){
+    let r="";
+    for(let i=0;i<s.length;i++){
+        r+=String.fromCharCode(s.charCodeAt(i)^k);
+    }
+    return r;
+}
 
-/* ================= LAYOUT ================= */
+/* ===== ENCRYPTED SOLUTION ===== */
 
-const layoutText = [
-"BBCCBCCCBB",
-"BCWWCWWWCB",
-"BCWWWWWWWC",
-"CWWWWCCWWW",
-"CWWWWWCWWW",
-"BCCWWWWCWW",
-"CWWCWWWCWW",
-"CWWCWWWWCC",
-"CWWWCWWWWW",
-"CWWWCCWWWW",
-"BCWWWWWWWB",
-"BBCWWWCWWB"
-];
+const p1="W1sxLDEsMSwwLDAsMSwxLDEsMCwx";
+const p2="LDEsMCwxLDEsMV0sWzEsMSwwLDEs";
+const p3="MSwxLDAsMSwxLDEsMCwxLDEsMCwx";
+const p4="XSxbMSwxLDEsMCwxLDEsMSwwLDEs";
+const p5="MSwxLDAsMCwxLDFdLFswLDEsMSwx";
+const p6="LDEsMCwxLDEsMCwxLDEsMSwxLDAs";
+const p7="MV0sWzEsMSwxLDAsMCwxLDEsMSwx";
+const p8="LDAsMSwxLDEsMSwwXSxbMSwwLDEs";
+const p9="MSwxLDEsMCwwLDEsMSwxLDEsMCwx";
+const p10="LDFdLFsxLDEsMSwwLDEsMSwxLDEs";
+const p11="MCwxLDEsMSwwLDAsMV0sWzAsMSwx";
+const p12="LDEsMSwxLDAsMSwxLDEsMCwxLDEs";
+const p13="MSwxXSxbMSwxLDAsMSwxLDEsMSww";
+const p14="LDEsMSwxLDEsMCwxLDBdLFsxLDEs";
+const p15="MSwwLDAsMSwxLDEsMCwxLDEsMSwx";
+const p16="LDAsMV0sWzEsMCwxLDEsMSwxLDAs";
+const p17="MSwxLDEsMSwwLDAsMSwxXSxbMSwx";
+const p18="LDEsMCwxLDEsMSwwLDEsMSwxLDEs";
+const p19="MCwwLDBdLFswLDEsMSwxLDEsMCwx";
+const p20="LDEsMSwwLDAsMSwxLDEsMV0sWzEs";
+const p21="MSwwLDEsMSwxLDAsMCwxLDEsMSwx";
+const p22="LDAsMSwxXSxbMSwxLDEsMCwwLDEs";
+const p23="MSwxLDEsMCwxLDEsMSwwLDFdXQ==";
 
-/* ================= START ================= */
+const solution=JSON.parse(d(
+p1+p2+p3+p4+p5+p6+p7+p8+p9+p10+
+p11+p12+p13+p14+p15+p16+p17+
+p18+p19+p20+p21+p22+p23
+));
+
+/* ===== CLUE GENERATOR ===== */
+
+function generateClues(line){
+
+    let clues=[];
+    let count=0;
+
+    for(let i=0;i<line.length;i++){
+
+        if(line[i]===1){
+            count++;
+        }else{
+
+            if(count>0){
+                clues.push(count);
+            }
+
+            count=0;
+
+        }
+
+    }
+
+    if(count>0){
+        clues.push(count);
+    }
+
+    if(clues.length===0){
+        clues=[0];
+    }
+
+    return clues;
+
+}
+
+/* ===== START ===== */
 
 function startGame(){
-  document.getElementById("startScreen").style.display="none";
-  document.getElementById("gameArea").style.display="block";
-  buildBoard();
-  generateClues();
-  startTimer();
+
+    if(localStorage.getItem(lockKey)){
+        alert("Already solved on this device.");
+        return;
+    }
+
+    document.getElementById("startScreen").style.display="none";
+    document.getElementById("gameArea").style.display="block";
+
+    buildGame();
+    startTimer();
+
 }
 
-/* ================= TIMER ================= */
+/* ===== TIMER ===== */
 
 function startTimer(){
-  interval = setInterval(()=>{
-    timer++;
-    let m = Math.floor(timer/60).toString().padStart(2,'0');
-    let s = (timer%60).toString().padStart(2,'0');
-    document.getElementById("timer").innerText=`Time: ${m}:${s}`;
-  },1000);
+
+    interval=setInterval(()=>{
+
+        timer++;
+
+        let m=Math.floor(timer/60).toString().padStart(2,'0');
+        let s=(timer%60).toString().padStart(2,'0');
+
+        document.getElementById("timer").innerText=`Time: ${m}:${s}`;
+
+    },1000);
+
 }
 
-/* ================= BUILD BOARD ================= */
+/* ===== BUILD GAME ===== */
 
-function buildBoard(){
-  const board = document.getElementById("board");
-  board.innerHTML="";
-  const table = document.createElement("table");
+function buildGame(){
 
-  for(let r=0;r<ROWS;r++){
-    const tr=document.createElement("tr");
+    const container=document.getElementById("game");
+    container.innerHTML="";
 
-    for(let c=0;c<COLS;c++){
-      const td=document.createElement("td");
-      const type = layoutText[r][c];
+    const table=document.createElement("table");
 
-      if(type==="W"){
-        td.className="white";
-        const input=document.createElement("input");
-        input.maxLength=1;
+    let colClues=[];
 
-        input.addEventListener("focus",()=>activeInput=input);
+    for(let c=0;c<size;c++){
 
-        input.addEventListener("input",function(){
-          this.value=this.value.replace(/[^1-9]/g,"");
-          undoStack.push(this);
-        });
+        let col=solution.map(row=>row[c]);
+        colClues.push(generateClues(col));
 
-        td.appendChild(input);
-      }
-      else if(type==="C"){
-        td.className="clue";
-        td.innerHTML='<span class="across"></span><span class="down"></span>';
-      }
-      else{
-        td.className="black";
-      }
-
-      tr.appendChild(td);
     }
 
-    table.appendChild(tr);
-  }
+    let rowClues=solution.map(row=>generateClues(row));
 
-  board.appendChild(table);
-}
+    let maxCol=Math.max(...colClues.map(c=>c.length));
+    let maxRow=Math.max(...rowClues.map(r=>r.length));
 
-/* ================= GENERATE CLUES ================= */
+    for(let r=0;r<maxCol+size;r++){
 
-function generateClues(){
-  const table=document.querySelector("#board table");
+        let tr=document.createElement("tr");
 
-  for(let r=0;r<ROWS;r++){
-    for(let c=0;c<COLS;c++){
+        for(let c=0;c<maxRow+size;c++){
 
-      if(layoutText[r][c]==="C"){
+            let td=document.createElement("td");
 
-        // ACROSS
-        if(c+1<COLS && layoutText[r][c+1]==="W"){
-          let sum=0;
-          let cc=c+1;
-          while(cc<COLS && layoutText[r][cc]==="W"){
-            sum+=solution[r][cc];
-            cc++;
-          }
-          table.rows[r].cells[c].querySelector(".across").innerText=sum;
+            if(r<maxCol && c<maxRow){
+
+                td.className="blank";
+
+            }
+            else if(r<maxCol){
+
+                let clue=colClues[c-maxRow];
+                let val=clue[clue.length-(maxCol-r)]||"";
+
+                td.className="clue";
+                td.innerText=val;
+
+            }
+            else if(c<maxRow){
+
+                let clue=rowClues[r-maxCol];
+                let val=clue[clue.length-(maxRow-c)]||"";
+
+                td.className="clue";
+                td.innerText=val;
+
+            }
+            else{
+
+                td.className="cell";
+
+                td.dataset.row=r-maxCol;
+                td.dataset.col=c-maxRow;
+
+                td.onclick=function(){
+
+                    if(locked) return;
+
+                    if(this.classList.contains("xmark")){
+                        this.classList.remove("xmark");
+                    }
+
+                    this.classList.toggle("fill");
+
+                    undoStack.push(this);
+
+                };
+
+                td.oncontextmenu=function(e){
+
+                    e.preventDefault();
+
+                    if(locked) return;
+
+                    if(this.classList.contains("fill")){
+                        this.classList.remove("fill");
+                    }
+
+                    this.classList.toggle("xmark");
+
+                    undoStack.push(this);
+
+                };
+
+            }
+
+            tr.appendChild(td);
+
         }
 
-        // DOWN
-        if(r+1<ROWS && layoutText[r+1][c]==="W"){
-          let sum=0;
-          let rr=r+1;
-          while(rr<ROWS && layoutText[rr][c]==="W"){
-            sum+=solution[rr][c];
-            rr++;
-          }
-          table.rows[r].cells[c].querySelector(".down").innerText=sum;
-        }
+        table.appendChild(tr);
 
-      }
     }
-  }
+
+    container.appendChild(table);
+
 }
 
-/* ================= SUBMIT ================= */
+/* ===== UNDO ===== */
+
+function undoMove(){
+
+    const last=undoStack.pop();
+
+    if(last){
+
+        last.classList.remove("fill");
+        last.classList.remove("xmark");
+
+    }
+
+}
+
+/* ===== CLEAR ===== */
+
+function clearGrid(){
+
+    if(locked) return;
+
+    document.querySelectorAll(".cell").forEach(cell=>{
+
+        cell.classList.remove("fill");
+        cell.classList.remove("xmark");
+
+    });
+
+}
+
+/* ===== SUBMIT ===== */
 
 function submitPuzzle(){
-  if(locked) return;
 
-  const table=document.querySelector("#board table");
+    if(locked) return;
 
-  for(let r=0;r<ROWS;r++){
-    for(let c=0;c<COLS;c++){
+    let correct=true;
 
-      if(layoutText[r][c]==="W"){
-        const input=table.rows[r].cells[c].querySelector("input");
-        const val=parseInt(input.value);
+    document.querySelectorAll(".cell").forEach(cell=>{
 
-        if(val!==solution[r][c]){
-          document.getElementById("resultMessage").innerText="Incorrect.";
-          return;
+        let r=cell.dataset.row;
+        let c=cell.dataset.col;
+
+        let filled=cell.classList.contains("fill")?1:0;
+
+        if(filled!=solution[r][c]){
+            correct=false;
         }
-      }
-    }
-  }
 
-  clearInterval(interval);
-  locked=true;
-  document.getElementById("resultMessage").innerText=
-    "Correct! Code: "+generateCode();
+    });
+
+    if(correct){
+
+        locked=true;
+
+        clearInterval(interval);
+
+        localStorage.setItem(lockKey,"true");
+
+        document.getElementById("resultMessage").innerText=
+        "Correct! Code: "+generateCode();
+
+    }
+    else{
+
+        document.getElementById("resultMessage").innerText=
+        "Incorrect Solution";
+
+    }
+
 }
 
-/* ================= FIXED CODE ================= */
+/* ===== ENCRYPTED FIXED CODE ===== */
 
 function generateCode(){
 
-  const encryptedCode =
-  "WjlAdkwjM3hUITdxUiQybVBeOHlXKjRrQiAlMWRGJjZuSD8wY0orNXNVPUUhYVg=";
+    const a="N0BLcSE5eiNMMiR2";
+    const b="WCY4bVJeNHBUKjF5";
+    const c="VyU2Y0g/M25CKzVk";
+    const d1="Rj0walMhdUU=";
 
-  return atob(encryptedCode);
+    return d(a+b+c+d1);
 
-}
-
-/* ================= UNDO ================= */
-
-function undoMove(){
-  const last=undoStack.pop();
-  if(last) last.value="";
-}
-
-/* ================= CLEAR ================= */
-
-function clearBoard(){
-  document.querySelectorAll(".white input").forEach(i=>i.value="");
-}
-
-/* ================= NUMBER PAD ================= */
-
-function insertNumber(num){
-  if(activeInput && !locked){
-    activeInput.value=num;
-  }
-}
-
-function clearCell(){
-  if(activeInput && !locked){
-    activeInput.value="";
-  }
-}
-
-/* ================= DRAG NUMBER PAD ================= */
-
-const pad=document.getElementById("numberPad");
-const header=document.getElementById("padHeader");
-
-if(header){
-  let offsetX, offsetY, dragging=false;
-
-  header.addEventListener("mousedown",(e)=>{
-    dragging=true;
-    offsetX=e.clientX-pad.offsetLeft;
-    offsetY=e.clientY-pad.offsetTop;
-  });
-
-  document.addEventListener("mousemove",(e)=>{
-    if(dragging){
-      pad.style.left=(e.clientX-offsetX)+"px";
-      pad.style.top=(e.clientY-offsetY)+"px";
-      pad.style.bottom="auto";
-      pad.style.right="auto";
-    }
-  });
-
-  document.addEventListener("mouseup",()=>dragging=false);
-}
-
-/* ================= MINIMIZE PAD ================= */
-
-const toggleBtn=document.getElementById("toggleBtn");
-const padBody=document.getElementById("padBody");
-
-if(toggleBtn){
-  toggleBtn.addEventListener("click",()=>{
-    if(padBody.style.display==="none"){
-      padBody.style.display="block";
-      toggleBtn.textContent="–";
-    } else {
-      padBody.style.display="none";
-      toggleBtn.textContent="+";
-    }
-  });
 }
