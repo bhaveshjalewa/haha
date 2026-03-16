@@ -1,117 +1,184 @@
+/* ===== GENERAL ===== */
+
 body{
+    margin:0;
     font-family:Segoe UI, sans-serif;
     background:#f4f6f9;
-    margin:0;
     text-align:center;
 }
 
-h1{
-    margin-top:30px;
+h1,h3{
+    margin:10px 0;
 }
 
-/* ================= START SCREEN ================= */
-
-#startScreen{
-    width:850px;
-    margin:40px auto;
-    padding:35px;
-    background:white;
-    border-radius:16px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.08);
-    text-align:left;
-}
-
-/* ================= TIMER ================= */
-
-#timer{
-    color:red;
+button{
+    padding:8px 16px;
+    margin:5px;
     font-weight:bold;
-    margin:15px;
-    font-size:18px;
-}
-
-/* ================= GAME BOARD ================= */
-
-table{
-    border-collapse:collapse;
-    margin:20px auto;
-}
-
-td{
-    width:30px;
-    height:30px;
-    border:1px solid #bbb;
-    text-align:center;
-    vertical-align:middle;
-}
-
-.cell{
-    background:white;
     cursor:pointer;
 }
 
-.fill{
+/* ===== START SCREEN ===== */
+
+#startScreen{
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:#f4f6f9;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+}
+
+.instructions{
+    width:420px;
+    text-align:left;
+    margin-bottom:20px;
+}
+
+/* ===== GAME ===== */
+
+#gameContainer{
+    display:none;
+    padding-bottom:40px;
+}
+
+header{
+    padding:10px;
+    font-weight:bold;
+    background:#dbe7f5;
+}
+
+/* ===== MAIN LAYOUT ===== */
+
+.main-layout{
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    gap:40px;
+    margin-top:20px;
+}
+
+/* ===== GRID ===== */
+
+#grid{
+    display:grid;
+    grid-template-columns:repeat(18,35px);
+    grid-template-rows:repeat(18,35px);
+}
+
+.grid-cell{
+    width:35px;
+    height:35px;
+    position:relative;
+}
+
+.cell{
+    width:100%;
+    height:100%;
+    border:1px solid black;
+    text-align:center;
+    font-size:18px;
+    text-transform:uppercase;
+    padding:0;
+    box-sizing:border-box;
+}
+
+.zero-cell{
+    background:#f4f6f9;
+    border:none;
+}
+
+.black-cell{
     background:black;
 }
 
-.cell.xmark::after{
-    content:"×";
-    font-size:20px;
-    color:#888;
+.cell-number{
+    position:absolute;
+    top:2px;
+    left:3px;
+    font-size:9px;
     font-weight:bold;
+    pointer-events:none;
 }
 
-.clue{
-    background:#f0f0f0;
-    font-weight:bold;
+/* ===== CLUES ===== */
+
+.clues-wrapper{
+    display:flex;
+    gap:30px;
+    height:630px;
 }
 
-.blank{
-    border:none;
-    background:#f4f6f9;
-}
-
-/* ================= BUTTON ================= */
-
-button{
-    padding:8px 18px;
-    font-size:15px;
-    margin:5px;
-}
-
-/* ================= RESULT ================= */
-
-#resultMessage{
-    font-weight:bold;
-    font-size:18px;
-    margin-top:10px;
-}
-
-/* ================= EXAMPLE NONOGRAM ================= */
-
-.example-grid{
-    border-collapse:collapse;
-    margin:15px auto;
-}
-
-.example-grid td{
-    width:28px;
-    height:28px;
-    border:1px solid #999;
-    text-align:center;
+.clue-column{
+    width:320px;
+    overflow-y:auto;
+    text-align:left;
     background:white;
+    padding:10px;
+    border-radius:6px;
 }
 
-.example-fill{
-    background:black !important;
+.clue-item{
+    padding:4px;
+    font-size:14px;
+    cursor:pointer;
+    border-radius:4px;
 }
 
-.example-clue{
-    background:#eaeaea !important;
+.clue-item:hover{
+    background:#eeeeee;
+}
+
+/* highlight active clue */
+.clue-item.active{
+    background:#d0e8ff;
+}
+
+/* ===== CONTROLS ===== */
+
+.controls{
+    margin-top:20px;
+}
+
+#message{
+    margin-top:20px;
     font-weight:bold;
-    font-size:13px;
 }
 
-.no-border{
-    border:none !important;
+/* ===== MOBILE RESPONSIVE ===== */
+
+@media (max-width:1000px){
+
+    .main-layout{
+        flex-direction:column;
+        align-items:center;
+    }
+
+    .clues-wrapper{
+        flex-direction:column;
+        height:auto;
+    }
+
+    .clue-column{
+        width:90%;
+        max-height:300px;
+    }
+
+    #grid{
+        transform:scale(0.85);
+        transform-origin:top center;
+    }
+}
+
+@media (max-width:600px){
+
+    #grid{
+        transform:scale(0.7);
+    }
+
+    .instructions{
+        width:90%;
+    }
 }
