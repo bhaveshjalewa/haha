@@ -2,130 +2,69 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>ShadeWork</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verba Arena</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>ShadeWork</h1>
-
-<!-- ================= START SCREEN ================= -->
+<!-- START SCREEN -->
 
 <div id="startScreen">
+    <h1>Verba Arena</h1>
 
-    <button onclick="startGame()">Start Game</button>
-
-    <div id="instructions">
-
-        <h3>How To Play</h3>
+    <div class="instructions">
+        <p><strong>Instructions:</strong></p>
         <ul>
-            <li>Each number represents consecutive filled (black) cells.</li>
-            <li>Multiple numbers mean separate groups.</li>
-            <li>There must be at least one blank cell between groups.</li>
-            <li>Left numbers → Row clues. Top numbers → Column clues.</li>
+            <li>Fill the crossword using finance concepts.</li>
+            <li>Click a cell to activate a word.</li>
+            <li>Click again to toggle Across/Down.</li>
+            <li>Typing moves automatically forward.</li>
+            <li>Undo, Clear and Submit options available.</li>
+            <li>Completion code appears after full correctness.</li>
         </ul>
-
-        <h3>Controls</h3>
-        <ul>
-            <li>Left Click → Fill cell</li>
-            <li>Right Click → X mark</li>
-            <li>Undo → Reverse last move</li>
-            <li>Clear Grid → Reset puzzle</li>
-        </ul>
-
-        <h3>Competition Rules</h3>
-        <ul>
-            <li>Timer starts when game begins.</li>
-            <li>Board locks after correct submission.</li>
-            <li>52-character secure code generated on success.</li>
-        </ul>
-
     </div>
 
-    <!-- Example Grid -->
-    <div class="example-wrapper">
-
-        <table class="example-grid">
-
-            <!-- COLUMN CLUES -->
-            <tr>
-                <td class="no-border"></td>
-                <td class="example-clue">3</td>
-                <td class="example-clue">1&nbsp;1&nbsp;1</td>
-                <td class="example-clue">5</td>
-                <td class="example-clue">1&nbsp;1&nbsp;1</td>
-                <td class="example-clue">3</td>
-            </tr>
-
-            <!-- ROW 1 -->
-            <tr>
-                <td class="example-clue">3</td>
-                <td></td>
-                <td class="example-fill"></td>
-                <td class="example-fill"></td>
-                <td class="example-fill"></td>
-                <td></td>
-            </tr>
-
-            <!-- ROW 2 -->
-            <tr>
-                <td class="example-clue">1&nbsp;1&nbsp;1</td>
-                <td class="example-fill"></td>
-                <td></td>
-                <td class="example-fill"></td>
-                <td></td>
-                <td class="example-fill"></td>
-            </tr>
-
-            <!-- ROW 3 -->
-            <tr>
-                <td class="example-clue">5</td>
-                <td class="example-fill"></td>
-                <td class="example-fill"></td>
-                <td class="example-fill"></td>
-                <td class="example-fill"></td>
-                <td class="example-fill"></td>
-            </tr>
-
-            <!-- ROW 4 -->
-            <tr>
-                <td class="example-clue">1&nbsp;1&nbsp;1</td>
-                <td class="example-fill"></td>
-                <td></td>
-                <td class="example-fill"></td>
-                <td></td>
-                <td class="example-fill"></td>
-            </tr>
-
-            <!-- ROW 5 -->
-            <tr>
-                <td class="example-clue">3</td>
-                <td></td>
-                <td class="example-fill"></td>
-                <td class="example-fill"></td>
-                <td class="example-fill"></td>
-                <td></td>
-            </tr>
-
-        </table>
-
-    </div>
-
+    <button id="startBtn">START QUIZ</button>
 </div>
 
-<!-- ================= GAME AREA ================= -->
+<!-- GAME CONTAINER -->
 
-<div id="gameArea" style="display:none;">
+<div id="gameContainer">
 
-    <div id="timer">Time: 00:00</div>
+    <header>
+        <div>Time: <span id="timer">00:00</span></div>
+    </header>
 
-    <div id="game"></div>
+    <div class="main-layout">
 
-    <button onclick="submitPuzzle()">Submit</button>
-    <button onclick="undoMove()">Undo</button>
-    <button onclick="clearGrid()">Clear Grid</button>
+        <!-- GRID -->
+        <div id="grid"></div>
 
-    <p id="resultMessage"></p>
+        <!-- CLUES -->
+        <div class="clues-wrapper">
+
+            <div class="clue-column">
+                <h3>Across</h3>
+                <div id="acrossClues"></div>
+            </div>
+
+            <div class="clue-column">
+                <h3>Down</h3>
+                <div id="downClues"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="controls">
+        <button id="undoBtn">Undo</button>
+        <button id="clearBtn">Clear</button>
+        <button id="submitBtn">Submit</button>
+    </div>
+
+    <div id="message"></div>
 
 </div>
 
