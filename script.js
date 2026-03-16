@@ -1,311 +1,404 @@
-const size=15;
-let timer=0;
-let interval;
-let undoStack=[];
-let locked=false;
-const lockKey="nonogramSolved";
+/*************************
+ START + TIMER
+*************************/
 
-/* ===== OBFUSCATION FUNCTIONS ===== */
+let timerInterval;
+let startTime;
 
-function d(a){
-    return atob(a);
+const startBtn = document.getElementById("startBtn");
+const startScreen = document.getElementById("startScreen");
+const gameContainer = document.getElementById("gameContainer");
+const timerDisplay = document.getElementById("timer");
+const message = document.getElementById("message");
+
+startBtn.addEventListener("click", function () {
+    startScreen.style.display = "none";
+    gameContainer.style.display = "block";
+    startTime = Date.now();
+    timerInterval = setInterval(updateTimer, 1000);
+    buildGrid();
+});
+
+function updateTimer() {
+    const diff = Math.floor((Date.now() - startTime) / 1000);
+    const m = Math.floor(diff / 60);
+    const s = diff % 60;
+
+    timerDisplay.textContent =
+        (m < 10 ? "0" + m : m) + ":" +
+        (s < 10 ? "0" + s : s);
 }
 
-function x(s,k){
-    let r="";
-    for(let i=0;i<s.length;i++){
-        r+=String.fromCharCode(s.charCodeAt(i)^k);
-    }
-    return r;
+/*************************
+ HIDDEN PUZZLE (ENCODED)
+*************************/
+
+const encodedPuzzle =
+"W0xFVkVSQUdFMDAwMEQwMEIwMCIsIkkwMDBFMFIwWTBQUkVNSVVNMCIsIlEwTkFWME8wSTAwMEIwMEQwMCIsIlUwMDBFMFcwRVFVSVRZMEcwQyIsIkkwMDBOMFQwTDAwMDAwQkVUQSIsIkQwMDBVMEhFREdJTkcwMFQwUCIsIjBXMDBFMDAwMDBOMDAwMDAwSSIsIjBFMDAwMDAwMDBGMFBST0ZJVCIsIk1BUkdJTjBDMDBMMDAwMDAwQSIsIjBMMDAwMDBSMFNBVklOR1MwTCIsIjBUQVhBQkxFMDBUMDAwMDAwMCIsIjBIMDAwMDBEMFRFTlVSRTAwMCIsIjAwMDAwMDBJMDAwMDBFMDAwMCIsIjBERUZBVUxUMERVUkFUSU9OMCIsIjAwMDBMMDAwMEUwSSNVMDAwMCIsIjBDT1VQT04wMEIwU1BSRUFEMCIsIjAwMDBIMDAwMFQwSzBOMDAwMCIsIjAwMDBBU1NFVFMwMDAwMDAwMCJd";
+
+function getPuzzle(){
+    return JSON.parse(atob(encodedPuzzle));
 }
 
-/* ===== ENCRYPTED SOLUTION ===== */
+const puzzle = getPuzzle();
 
-const p1="W1sxLDEsMSwwLDAsMSwxLDEsMCwx";
-const p2="LDEsMCwxLDEsMV0sWzEsMSwwLDEs";
-const p3="MSwxLDAsMSwxLDEsMCwxLDEsMCwx";
-const p4="XSxbMSwxLDEsMCwxLDEsMSwwLDEs";
-const p5="MSwxLDAsMCwxLDFdLFswLDEsMSwx";
-const p6="LDEsMCwxLDEsMCwxLDEsMSwxLDAs";
-const p7="MV0sWzEsMSwxLDAsMCwxLDEsMSwx";
-const p8="LDAsMSwxLDEsMSwwXSxbMSwwLDEs";
-const p9="MSwxLDEsMCwwLDEsMSwxLDEsMCwx";
-const p10="LDFdLFsxLDEsMSwwLDEsMSwxLDEs";
-const p11="MCwxLDEsMSwwLDAsMV0sWzAsMSwx";
-const p12="LDEsMSwxLDAsMSwxLDEsMCwxLDEs";
-const p13="MSwxXSxbMSwxLDAsMSwxLDEsMSww";
-const p14="LDEsMSwxLDEsMCwxLDBdLFsxLDEs";
-const p15="MSwwLDAsMSwxLDEsMCwxLDEsMSwx";
-const p16="LDAsMV0sWzEsMCwxLDEsMSwxLDAs";
-const p17="MSwxLDEsMSwwLDAsMSwxXSxbMSwx";
-const p18="LDEsMCwxLDEsMSwwLDEsMSwxLDEs";
-const p19="MCwwLDBdLFswLDEsMSwxLDEsMCwx";
-const p20="LDEsMSwwLDAsMSwxLDEsMV0sWzEs";
-const p21="MSwwLDEsMSwxLDAsMCwxLDEsMSwx";
-const p22="LDAsMSwxXSxbMSwxLDEsMCwwLDEs";
-const p23="MSwxLDEsMCwxLDEsMSwwLDFdXQ==";
+/*************************
+ CLUES
+*************************/
 
-const solution=JSON.parse(d(
-p1+p2+p3+p4+p5+p6+p7+p8+p9+p10+
-p11+p12+p13+p14+p15+p16+p17+
-p18+p19+p20+p21+p22+p23
-));
+const acrossCluesText = [
+"Strategic use of borrowed capital to amplify returns.",
+"Additional return demanded for bearing uncertainty.",
+"Per-unit valuation metric of an investment fund.",
+"Residual ownership interest after liabilities.",
+"Sensitivity measure of security to market movement.",
+"Offsetting position taken to reduce risk.",
+"Surplus after deducting expenses from revenue.",
+"Broker-provided borrowing to increase exposure.",
+"Income deliberately set aside.",
+"Income subject to government levy.",
+"Agreed duration of financial contract.",
+"Failure to meet debt obligation.",
+"Bond price sensitivity measure.",
+"Periodic bond interest payment.",
+"Yield difference reflecting risk.",
+"Resources expected to generate value."
+];
 
-/* ===== CLUE GENERATOR ===== */
+const downCluesText = [
+"Easily convertible into cash.",
+"Total income before expenses.",
+"Increase beyond inflation.",
+"Borrowed funds requiring repayment.",
+"Structured financial plan.",
+"Income percentage return.",
+"Financial resources for growth.",
+"Rise in general price level.",
+"Accumulated financial value.",
+"Ability to repay borrowed money.",
+"Total gain or loss on investment.",
+"Excess return beyond benchmark.",
+"Outstanding financial obligations.",
+"Uncertainty in financial outcomes."
+];
 
-function generateClues(line){
+/*************************
+ HIDDEN COMPLETION CODE
+*************************/
 
-    let clues=[];
-    let count=0;
+function getCompletionCode() {
 
-    for(let i=0;i<line.length;i++){
+const data = [
+88,57,70,55,76,81,50,90,80,56,77,52,
+82,49,84,54,86,51,87,48,75,53,89,56,
+67,50,68,55,78,52,66,49,83,54,72,57,
+69,48,74,51,71,50,85,53,65
+];
 
-        if(line[i]===1){
-            count++;
-        }else{
+return data.map(c => String.fromCharCode(c)).join("");
+}
 
-            if(count>0){
-                clues.push(count);
+/*************************
+ GRID + WORD ENGINE
+*************************/
+
+const grid = document.getElementById("grid");
+const acrossDiv = document.getElementById("acrossClues");
+const downDiv = document.getElementById("downClues");
+
+let words = [];
+let activeWord = null;
+let currentDirection = "across";
+
+function buildGrid() {
+
+    grid.innerHTML = "";
+    acrossDiv.innerHTML = "";
+    downDiv.innerHTML = "";
+    words = [];
+
+    let number = 1;
+    let acrossIndex = 0;
+    let downIndex = 0;
+
+    for (let r = 0; r < 18; r++) {
+        for (let c = 0; c < 18; c++) {
+
+            const char = puzzle[r][c];
+            const wrapper = document.createElement("div");
+            wrapper.className = "grid-cell";
+
+            if (char === "0") {
+                wrapper.classList.add("zero-cell");
             }
 
-            count=0;
-
-        }
-
-    }
-
-    if(count>0){
-        clues.push(count);
-    }
-
-    if(clues.length===0){
-        clues=[0];
-    }
-
-    return clues;
-
-}
-
-/* ===== START ===== */
-
-function startGame(){
-
-    if(localStorage.getItem(lockKey)){
-        alert("Already solved on this device.");
-        return;
-    }
-
-    document.getElementById("startScreen").style.display="none";
-    document.getElementById("gameArea").style.display="block";
-
-    buildGame();
-    startTimer();
-
-}
-
-/* ===== TIMER ===== */
-
-function startTimer(){
-
-    interval=setInterval(()=>{
-
-        timer++;
-
-        let m=Math.floor(timer/60).toString().padStart(2,'0');
-        let s=(timer%60).toString().padStart(2,'0');
-
-        document.getElementById("timer").innerText=`Time: ${m}:${s}`;
-
-    },1000);
-
-}
-
-/* ===== BUILD GAME ===== */
-
-function buildGame(){
-
-    const container=document.getElementById("game");
-    container.innerHTML="";
-
-    const table=document.createElement("table");
-
-    let colClues=[];
-
-    for(let c=0;c<size;c++){
-
-        let col=solution.map(row=>row[c]);
-        colClues.push(generateClues(col));
-
-    }
-
-    let rowClues=solution.map(row=>generateClues(row));
-
-    let maxCol=Math.max(...colClues.map(c=>c.length));
-    let maxRow=Math.max(...rowClues.map(r=>r.length));
-
-    for(let r=0;r<maxCol+size;r++){
-
-        let tr=document.createElement("tr");
-
-        for(let c=0;c<maxRow+size;c++){
-
-            let td=document.createElement("td");
-
-            if(r<maxCol && c<maxRow){
-
-                td.className="blank";
-
+            else if (char === "#") {
+                wrapper.classList.add("black-cell");
             }
-            else if(r<maxCol){
 
-                let clue=colClues[c-maxRow];
-                let val=clue[clue.length-(maxCol-r)]||"";
+            else {
 
-                td.className="clue";
-                td.innerText=val;
+                const startAcross =
+                    (c === 0 || puzzle[r][c - 1] === "0" || puzzle[r][c - 1] === "#") &&
+                    (c < 17 && puzzle[r][c + 1] !== "0" && puzzle[r][c + 1] !== "#");
 
-            }
-            else if(c<maxRow){
+                const startDown =
+                    (r === 0 || puzzle[r - 1][c] === "0" || puzzle[r - 1][c] === "#") &&
+                    (r < 17 && puzzle[r + 1][c] !== "0" && puzzle[r + 1][c] !== "#");
 
-                let clue=rowClues[r-maxCol];
-                let val=clue[clue.length-(maxRow-c)]||"";
+                if (startAcross || startDown) {
 
-                td.className="clue";
-                td.innerText=val;
+                    const num = document.createElement("div");
+                    num.className = "cell-number";
+                    num.textContent = number;
+                    wrapper.appendChild(num);
 
-            }
-            else{
-
-                td.className="cell";
-
-                td.dataset.row=r-maxCol;
-                td.dataset.col=c-maxRow;
-
-                td.onclick=function(){
-
-                    if(locked) return;
-
-                    if(this.classList.contains("xmark")){
-                        this.classList.remove("xmark");
+                    if (startAcross) {
+                        const word = {
+                            number,
+                            direction: "across",
+                            cells: collectWord(r, c, "across"),
+                            clue: acrossCluesText[acrossIndex++]
+                        };
+                        words.push(word);
+                        renderClue(word, acrossDiv);
                     }
 
-                    this.classList.toggle("fill");
-
-                    undoStack.push(this);
-
-                };
-
-                td.oncontextmenu=function(e){
-
-                    e.preventDefault();
-
-                    if(locked) return;
-
-                    if(this.classList.contains("fill")){
-                        this.classList.remove("fill");
+                    if (startDown) {
+                        const word = {
+                            number,
+                            direction: "down",
+                            cells: collectWord(r, c, "down"),
+                            clue: downCluesText[downIndex++]
+                        };
+                        words.push(word);
+                        renderClue(word, downDiv);
                     }
 
-                    this.classList.toggle("xmark");
+                    number++;
+                }
 
-                    undoStack.push(this);
+                const input = document.createElement("input");
+                input.className = "cell";
+                input.maxLength = 1;
+                input.dataset.row = r;
+                input.dataset.col = c;
 
-                };
+                /* encoded solution */
+                input.dataset.correct = btoa(char);
 
+                input.addEventListener("focus", () => activateCell(r, c));
+                input.addEventListener("input", autoMove);
+                input.addEventListener("keydown", handleKey);
+
+                wrapper.appendChild(input);
             }
 
-            tr.appendChild(td);
-
+            grid.appendChild(wrapper);
         }
-
-        table.appendChild(tr);
-
     }
-
-    container.appendChild(table);
-
 }
 
-/* ===== UNDO ===== */
+function collectWord(r, c, dir) {
 
-function undoMove(){
+    const cells = [];
 
-    const last=undoStack.pop();
+    while (
+        r < 18 &&
+        c < 18 &&
+        puzzle[r][c] !== "0" &&
+        puzzle[r][c] !== "#"
+    ) {
+        cells.push({ r, c });
 
-    if(last){
-
-        last.classList.remove("fill");
-        last.classList.remove("xmark");
-
+        if (dir === "across") c++;
+        else r++;
     }
 
+    return cells;
 }
 
-/* ===== CLEAR ===== */
+function renderClue(word, container) {
 
-function clearGrid(){
+    const div = document.createElement("div");
+    div.className = "clue-item";
+    div.textContent = word.number + ". " + word.clue;
 
-    if(locked) return;
+    div.onclick = () => highlightWord(word);
 
-    document.querySelectorAll(".cell").forEach(cell=>{
+    word.clueElement = div;
+    container.appendChild(div);
+}
 
-        cell.classList.remove("fill");
-        cell.classList.remove("xmark");
+/*************************
+ HIGHLIGHT
+*************************/
 
+function activateCell(r, c) {
+
+    const matchingWords = words.filter(w =>
+        w.cells.some(cell => cell.r === r && cell.c === c)
+    );
+
+    if (activeWord && matchingWords.length === 2) {
+        currentDirection =
+            currentDirection === "across" ? "down" : "across";
+    }
+
+    activeWord =
+        matchingWords.find(w => w.direction === currentDirection)
+        || matchingWords[0];
+
+    highlightWord(activeWord);
+}
+
+function highlightWord(word) {
+
+    document.querySelectorAll(".cell")
+        .forEach(c => c.style.background = "white");
+
+    document.querySelectorAll(".clue-item")
+        .forEach(c => c.style.background = "transparent");
+
+    if (!word) return;
+
+    word.cells.forEach(cell => {
+        const el = getCell(cell.r, cell.c);
+        if (el) el.style.background = "#d0e8ff";
     });
 
+    if (word.clueElement)
+        word.clueElement.style.background = "#d0e8ff";
+
+    activeWord = word;
 }
 
-/* ===== SUBMIT ===== */
-
-function submitPuzzle(){
-
-    if(locked) return;
-
-    let correct=true;
-
-    document.querySelectorAll(".cell").forEach(cell=>{
-
-        let r=cell.dataset.row;
-        let c=cell.dataset.col;
-
-        let filled=cell.classList.contains("fill")?1:0;
-
-        if(filled!=solution[r][c]){
-            correct=false;
-        }
-
-    });
-
-    if(correct){
-
-        locked=true;
-
-        clearInterval(interval);
-
-        localStorage.setItem(lockKey,"true");
-
-        document.getElementById("resultMessage").innerText=
-        "Correct! Code: "+generateCode();
-
-    }
-    else{
-
-        document.getElementById("resultMessage").innerText=
-        "Incorrect Solution";
-
-    }
-
+function getCell(r, c) {
+    return document.querySelector(
+        `.cell[data-row='${r}'][data-col='${c}']`
+    );
 }
 
-/* ===== ENCRYPTED FIXED CODE ===== */
+/*************************
+ AUTO MOVE
+*************************/
 
-function generateCode(){
+function autoMove(e) {
 
-    const a="N0BLcSE5eiNMMiR2";
-    const b="WCY4bVJeNHBUKjF5";
-    const c="VyU2Y0g/M25CKzVk";
-    const d1="Rj0walMhdUU=";
+    const input = e.target;
+    input.value = input.value.toUpperCase();
 
-    return d(a+b+c+d1);
+    if (!activeWord) return;
 
+    const r = parseInt(input.dataset.row);
+    const c = parseInt(input.dataset.col);
+
+    const index = activeWord.cells.findIndex(
+        cell => cell.r === r && cell.c === c
+    );
+
+    const next = activeWord.cells[index + 1];
+
+    if (next) {
+        const nextCell = getCell(next.r, next.c);
+        if (nextCell) nextCell.focus();
+    }
+}
+
+/*************************
+ BACKSPACE MOVE
+*************************/
+
+function handleKey(e) {
+
+    if (e.key !== "Backspace") return;
+
+    const input = e.target;
+
+    if (input.value !== "") return;
+
+    const r = parseInt(input.dataset.row);
+    const c = parseInt(input.dataset.col);
+
+    const index = activeWord.cells.findIndex(
+        cell => cell.r === r && cell.c === c
+    );
+
+    const prev = activeWord.cells[index - 1];
+
+    if (prev) {
+        const prevCell = getCell(prev.r, prev.c);
+        if (prevCell) prevCell.focus();
+    }
+}
+
+/*************************
+ CLEAR
+*************************/
+
+document.getElementById("clearBtn")
+.addEventListener("click", function () {
+
+    document.querySelectorAll(".cell")
+        .forEach(cell => cell.value = "");
+
+    message.textContent = "";
+});
+
+/*************************
+ SUBMIT
+*************************/
+
+document.getElementById("submitBtn")
+.addEventListener("click", function () {
+
+    let correct = true;
+
+    document.querySelectorAll(".cell")
+        .forEach(input => {
+
+            /* decode solution before checking */
+            if (input.value !== atob(input.dataset.correct)) {
+                correct = false;
+            }
+
+        });
+
+    if (correct) {
+
+        clearInterval(timerInterval);
+
+        message.style.color = "green";
+
+        message.innerHTML =
+            "<b>Completed Successfully!</b><br><br>" +
+            "Completion Code:<br><br>" +
+            "<div style='word-break:break-all'>" +
+            getCompletionCode() +
+            "</div>";
+
+        lockPuzzle();
+
+    } else {
+
+        message.style.color = "red";
+        message.textContent =
+            "Some answers are incorrect.";
+    }
+});
+
+/*************************
+ LOCK PUZZLE
+*************************/
+
+function lockPuzzle() {
+
+    document.querySelectorAll(".cell")
+        .forEach(cell => {
+            cell.disabled = true;
+            cell.style.background = "#e6f4ea";
+        });
+
+    document.getElementById("clearBtn").disabled = true;
+    document.getElementById("submitBtn").disabled = true;
 }
